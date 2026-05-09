@@ -54,8 +54,8 @@ def render_parent_dashboard():
         form_title = f"✏️ Đang sửa: {editing_data.get('title')}" if editing_id else "➕ Thêm Nhiệm Vụ Mới"
         with st.expander(form_title, expanded=bool(editing_id)):
             with st.form("form_add_task", clear_on_submit=True):
-                t_title = st.text_input("Tên nhiệm vụ", value=editing_data.get('title', ''))
-                t_icon = st.text_input("Icon (Emoji)", value=editing_data.get('icon', '📝'))
+                t_title = st.text_input("Tên nhiệm vụ", value=editing_data.get('title', ''), autocomplete="off")
+                t_icon = st.text_input("Icon (Emoji)", value=editing_data.get('icon', '📝'), autocomplete="off")
                 t_stars = st.number_input("Số sao thưởng", min_value=1, value=int(editing_data.get('stars_reward', 5)))
                 t_req_approval = st.checkbox("Cần ba mẹ duyệt?", value=editing_data.get('requires_approval', False))
                 
@@ -262,8 +262,8 @@ def render_parent_dashboard():
         # Add new reward form
         with st.expander("➕ Thêm Quà Tặng Mới"):
             with st.form("form_add_reward"):
-                r_name = st.text_input("Tên món quà")
-                r_icon = st.text_input("Icon (Emoji hoặc URL)", value="🎁")
+                r_name = st.text_input("Tên món quà", autocomplete="off")
+                r_icon = st.text_input("Icon (Emoji hoặc URL)", value="🎁", autocomplete="off")
                 r_prob = st.number_input("Tỷ lệ trúng (%)", min_value=1, max_value=100, value=10)
                 if st.form_submit_button("Thêm quà"):
                     if r_name:
@@ -291,14 +291,14 @@ def render_parent_dashboard():
         config = db_helper.get_system_config()
         kid_profile = db_helper.get_kid_profile()
         
-        new_name = st.text_input("Tên của bé", value=kid_profile.get('name', 'Bảo Nam'))
+        new_name = st.text_input("Tên của bé", value=kid_profile.get('name', 'Bảo Nam'), autocomplete="off")
         if st.button("Lưu tên"):
             db_helper.update_kid_name(new_name)
             st.success("Đã cập nhật tên của bé!")
             
         st.markdown("---")
         
-        new_pin = st.text_input("Mã PIN", value=config.get('parent_pin', '1234'), type="password")
+        new_pin = st.text_input("Mã PIN", value=config.get('parent_pin', '1234'), type="password", autocomplete="one-time-code")
         if st.button("Lưu PIN"):
             db_helper.update_system_config('parent_pin', new_pin)
             st.success("Đã cập nhật mã PIN!")

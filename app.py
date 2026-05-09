@@ -29,7 +29,7 @@ with st.sidebar:
                 
         if st.session_state['show_parent_login']:
             st.info("Khu vực bảo mật")
-            pin_input = st.text_input("Nhập mã PIN", type="password")
+            pin_input = st.text_input("Nhập mã PIN", type="password", autocomplete="one-time-code")
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("Xác nhận"):
