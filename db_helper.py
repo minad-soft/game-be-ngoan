@@ -11,12 +11,17 @@ KEY_FILE = 'firebase_key.json'
 # Khởi tạo Firebase App (Chỉ gọi 1 lần trong Streamlit)
 if not firebase_admin._apps:
     try:
-        # Nếu có cài biến môi trường FIREBASE_JSON trên Streamlit Cloud
-        if "FIREBASE_JSON" in st.secrets:
-            cred_dict = json.loads(st.secrets["FIREBASE_JSON"])
-            cred = credentials.Certificate(cred_dict)
-        else:
-            # Nếu chạy trên máy tính cá nhân thì đọc file
+        cred = None
+        # Thử đọc từ Streamlit Secrets trước (Dành cho Cloud)
+        try:
+            if "FIREBASE_JSON" in st.secrets:
+                cred_dict = json.loads(st.secrets["FIREBASE_JSON"])
+                cred = credentials.Certificate(cred_dict)
+        except Exception:
+            pass # Bỏ qua nếu không có secrets
+            
+        # Fallback dùng file local nếu chưa có cred
+        if cred is None:
             cred = credentials.Certificate(KEY_FILE)
             
         firebase_admin.initialize_app(cred, {

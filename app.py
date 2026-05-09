@@ -28,23 +28,27 @@ with st.sidebar:
                 st.rerun()
                 
         if st.session_state['show_parent_login']:
-            st.info("Khu vực bảo mật")
-            pin_input = st.text_input("Nhập mã PIN", type="password", autocomplete="one-time-code")
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("Xác nhận"):
-                    config = db_helper.get_system_config()
-                    if pin_input == config.get('parent_pin', '1234'):
-                        st.session_state['parent_mode_authenticated'] = True
-                        st.session_state['show_parent_login'] = False
-                        st.success("Thành công!")
-                        st.rerun()
-                    else:
-                        st.error("PIN sai!")
-            with col2:
-                if st.button("Hủy"):
+            with st.form("form_login"):
+                st.info("Khu vực bảo mật")
+                pin_input = st.text_input("Nhập mã PIN", type="password", autocomplete="one-time-code")
+                col1, col2 = st.columns(2)
+                with col1:
+                    submitted = st.form_submit_button("Xác nhận", use_container_width=True)
+                with col2:
+                    cancel = st.form_submit_button("Hủy", use_container_width=True)
+                
+            if submitted:
+                config = db_helper.get_system_config()
+                if pin_input == config.get('parent_pin', '1234'):
+                    st.session_state['parent_mode_authenticated'] = True
                     st.session_state['show_parent_login'] = False
+                    st.success("Thành công!")
                     st.rerun()
+                else:
+                    st.error("PIN sai!")
+            if cancel:
+                st.session_state['show_parent_login'] = False
+                st.rerun()
     else:
         st.success("Đang ở chế độ Phụ huynh")
         if st.button("🔙 Quay lại màn hình của bé", use_container_width=True):
