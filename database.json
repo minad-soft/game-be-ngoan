@@ -1,0 +1,35 @@
+{
+  "system_config": {
+    "parent_pin": "1234",
+    "stars_required_for_blindbag": 50
+  },
+  "users": {
+    "kid_profile": {
+      "name": "Bảo Nam",
+      "total_stars": 75
+    }
+  },
+  "tasks": {
+    "task_1": {
+      "title": "Sắp xếp bàn học",
+      "icon": "🧹",
+      "stars_reward": 5,
+      "requires_approval": false,
+      "cooldown_hours": 12
+    },
+    "task_1778291584": {
+      "title": "Ăn sáng",
+      "icon": "🍜",
+      "stars_reward": 5,
+      "requires_approval": true
+    }
+  },
+  "rewards_pool": {
+    "reward_1778291795": {
+      "name": "Xem phim hoạt hình 5 phút",
+      "probability": 50,
+      "icon_url": "🎁"
+    }
+  },
+  "pending_approvals": {}
+}

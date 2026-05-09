@@ -1,0 +1,68 @@
+/* style.css */
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap');
+
+body, .stApp {
+    background-color: #0b0c10;
+    color: #c5c6c7;
+    font-family: 'Baloo 2', cursive;
+    background-image: radial-gradient(circle at top right, #1f2833, #0b0c10);
+}
+
+h1, h2, h3, h4 {
+    color: #66fcf1;
+    text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
+    font-weight: 800;
+}
+
+/* Base button styles */
+.stButton>button {
+    background: linear-gradient(135deg, #45a247 0%, #283c86 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 24px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.stButton>button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(69, 162, 71, 0.4);
+    color: white;
+}
+
+.stButton>button:active {
+    transform: translateY(1px);
+}
+
+/* Star count styling */
+div[data-testid="stMetricValue"] {
+    color: #f1c40f;
+    font-size: 3rem;
+    text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+}
+
+/* Metric label */
+div[data-testid="stMetricLabel"] {
+    font-size: 1.5rem;
+    color: #c5c6c7;
+}
+
+.stAlert {
+    border-radius: 15px;
+}
+
+/* Hide streamlit default menu and footer, but KEEP sidebar toggle button */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+
+/* Nút mở lại sidebar khi đã thu nhỏ - luôn hiển thị */
+[data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    color: #66fcf1;
+}
+
