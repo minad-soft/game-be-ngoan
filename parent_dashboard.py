@@ -57,14 +57,19 @@ def render_parent_dashboard():
                 t_title = st.text_input("Tên nhiệm vụ", value=editing_data.get('title', ''), autocomplete="off")
                 t_icon = st.text_input("Icon (Emoji)", value=editing_data.get('icon', '📝'), autocomplete="off")
                 t_stars = st.number_input("Số sao thưởng", min_value=1, value=int(editing_data.get('stars_reward', 5)))
-                t_req_approval = st.checkbox("Cần ba mẹ duyệt?", value=editing_data.get('requires_approval', False))
+                
+                col_opts1, col_opts2 = st.columns(2)
+                with col_opts1:
+                    t_req_approval = st.checkbox("Cần ba mẹ duyệt?", value=editing_data.get('requires_approval', False))
+                with col_opts2:
+                    t_is_daily = st.checkbox("Mặc định hàng ngày?", value=editing_data.get('is_daily', False))
                 
                 col_save, col_cancel = st.columns(2)
                 with col_save:
                     btn_label = "💾 Lưu thay đổi" if editing_id else "Thêm nhiệm vụ"
                     if st.form_submit_button(btn_label):
                         if t_title:
-                            db_helper.save_task(editing_id, t_title, t_icon, t_stars, t_req_approval)
+                            db_helper.save_task(editing_id, t_title, t_icon, t_stars, t_req_approval, t_is_daily)
                             st.success("Đã lưu!" if editing_id else "Đã thêm nhiệm vụ!")
                             st.session_state['editing_task_id'] = None
                             st.rerun()
@@ -82,8 +87,12 @@ def render_parent_dashboard():
             for t_id, t_data in tasks.items():
                 col1, col2, col3 = st.columns([4, 1, 1])
                 with col1:
-                    approval_tag = "🔒 Cần duyệt" if t_data.get('requires_approval') else "⚡ Tự động"
-                    st.write(f"{t_data.get('icon')} **{t_data.get('title')}** — {t_data.get('stars_reward')} ⭐ `{approval_tag}`")
+                    tags = []
+                    if t_data.get('requires_approval'): tags.append("🔒 Cần duyệt")
+                    if t_data.get('is_daily'): tags.append("🔁 Hàng ngày")
+                    tag_str = " | ".join(tags) if tags else "⚡ Tự động"
+                    
+                    st.write(f"{t_data.get('icon')} **{t_data.get('title')}** — {t_data.get('stars_reward')} ⭐ `{tag_str}`")
                 with col2:
                     if st.button("✏️ Sửa", key=f"edit_task_{t_id}"):
                         st.session_state['editing_task_id'] = t_id

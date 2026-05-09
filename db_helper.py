@@ -153,7 +153,7 @@ def update_kid_name(new_name):
     kid['name'] = new_name
     save_db(data)
 
-def save_task(task_id, title, icon, stars_reward, requires_approval):
+def save_task(task_id, title, icon, stars_reward, requires_approval, is_daily=False):
     data = load_db()
     tasks = data.setdefault('tasks', {})
     if not task_id:
@@ -162,7 +162,8 @@ def save_task(task_id, title, icon, stars_reward, requires_approval):
         "title": title,
         "icon": icon,
         "stars_reward": stars_reward,
-        "requires_approval": requires_approval
+        "requires_approval": requires_approval,
+        "is_daily": is_daily
     }
     save_db(data)
 
@@ -212,24 +213,32 @@ def get_today_day_key():
     return datetime.now().strftime('%A').lower()
 
 def get_tasks_for_today():
-    """Lấy danh sách nhiệm vụ được gán cho ngày hôm nay theo lịch tuần"""
+    """Lấy danh sách nhiệm vụ được gán cho ngày hôm nay theo lịch tuần và các nhiệm vụ hàng ngày"""
     schedule = get_weekly_schedule()
     today_key = get_today_day_key()
     task_ids = schedule.get(today_key, [])
     
     all_tasks = get_tasks()
-    if not task_ids:
-        # Nếu chưa setup lịch tuần, trả về tất cả tasks
-        return all_tasks
     
-    return {tid: all_tasks[tid] for tid in task_ids if tid in all_tasks}
+    # Kết hợp các task có trong lịch tuần HOẶC được đánh dấu is_daily
+    scheduled_tasks = {}
+    for tid, tdata in all_tasks.items():
+        if tid in task_ids or tdata.get('is_daily', False):
+            scheduled_tasks[tid] = tdata
+            
+    # Nếu lịch tuần hoàn toàn trống (chưa setup bất kỳ ngày nào) và không có task daily nào
+    if not schedule and not any(t.get('is_daily') for t in all_tasks.values()):
+        return all_tasks
+        
+    return scheduled_tasks
 
 def get_tasks_for_day(day_key):
-    """Lấy danh sách nhiệm vụ cho 1 ngày cụ thể"""
+    """Lấy danh sách nhiệm vụ cho 1 ngày cụ thể (bao gồm cả daily tasks)"""
     schedule = get_weekly_schedule()
     task_ids = schedule.get(day_key, [])
     all_tasks = get_tasks()
-    return {tid: all_tasks[tid] for tid in task_ids if tid in all_tasks}
+    
+    return {tid: tdata for tid, tdata in all_tasks.items() if tid in task_ids or tdata.get('is_daily', False)}
 
 # ========== REPORTS ==========
 def get_completions_for_date(date_str):
@@ -253,8 +262,13 @@ def get_weekly_report(start_date):
         day_key = day.strftime('%A').lower()
         
         scheduled_ids = schedule.get(day_key, [])
-        # Lọc chỉ giữ lại task_id hợp lệ (vẫn tồn tại)
-        scheduled_ids = [tid for tid in scheduled_ids if tid in all_tasks]
+        # Lọc những task hợp lệ và tự động cộng thêm các task daily
+        valid_scheduled_ids = []
+        for tid, tdata in all_tasks.items():
+            if tid in scheduled_ids or tdata.get('is_daily', False):
+                valid_scheduled_ids.append(tid)
+        
+        scheduled_ids = valid_scheduled_ids
         completed_ids = get_completions_for_date(date_str)
         
         total = len(scheduled_ids) if scheduled_ids else 0
