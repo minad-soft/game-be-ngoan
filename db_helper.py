@@ -1,18 +1,47 @@
 import json
 import os
 from datetime import datetime
+import firebase_admin
+from firebase_admin import credentials, db
+import streamlit as st
 
-DB_FILE = 'database.json'
+DB_URL = 'https://game-be-ngoan-default-rtdb.asia-southeast1.firebasedatabase.app/'
+KEY_FILE = 'firebase_key.json'
+
+# Khởi tạo Firebase App (Chỉ gọi 1 lần trong Streamlit)
+if not firebase_admin._apps:
+    try:
+        # Nếu có cài biến môi trường FIREBASE_JSON trên Streamlit Cloud
+        if "FIREBASE_JSON" in st.secrets:
+            cred_dict = json.loads(st.secrets["FIREBASE_JSON"])
+            cred = credentials.Certificate(cred_dict)
+        else:
+            # Nếu chạy trên máy tính cá nhân thì đọc file
+            cred = credentials.Certificate(KEY_FILE)
+            
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': DB_URL
+        })
+    except Exception as e:
+        print("Lỗi khởi tạo Firebase:", e)
 
 def load_db():
-    if not os.path.exists(DB_FILE):
+    try:
+        ref = db.reference('/')
+        data = ref.get()
+        if data is None:
+            return {}
+        return data
+    except Exception as e:
+        print("Lỗi đọc Firebase:", e)
         return {}
-    with open(DB_FILE, 'r', encoding='utf-8') as f:
-        return json.load(f)
 
 def save_db(data):
-    with open(DB_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    try:
+        ref = db.reference('/')
+        ref.set(data)
+    except Exception as e:
+        print("Lỗi ghi Firebase:", e)
 
 def get_kid_profile():
     data = load_db()
